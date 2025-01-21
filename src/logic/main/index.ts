@@ -8,86 +8,102 @@ type CalculatorState = {
     operator: string;
 };
 
+class Calc {
+    private readonly a: number;
+    private readonly b: number;
 
-function add(a: number, b: number): number {
-    return a + b;
-}
-
-function minus(a: number, b: number): number {
-    return a - b;
-}
-
-function division(a: number, b: number): number {
-    if (b === 0) {
-        alert("Ошибка: деление на ноль");
-        return a;
+    constructor(a, b) {
+        this.a = a;
+        this.b = b;
     }
-    return a / b;
-}
 
-function  multiplication(a: number, b: number): number {
-    return a * b;
+    public plus(): number {
+        return this.a + this.b;
+    }
+
+    public minus(): number {
+        return this.a - this.b;
+    }
+
+    public division(): number {
+        if (this.b === 0) {
+            alert("Ошибка: деление на ноль");
+            return this.a;
+        }
+        return this.a / this.b;
+    }
+
+    public multiplication(): number {
+        return this.a * this.b;
+    }
 }
 
 const main = () => {
-    let result: number = 0
-    let currentInput: string = ''
-    let operator: string = ''
+    let calState: CalculatorState = {
+        result: 0,
+        currentInput: '',
+        operator: ''
+    };
 
-    const calculate = ():CalculatorState => {
-        const inputNumber = parseFloat(currentInput);
+    const calculate = (): void | undefined => {
+        const inputNumber = parseFloat(calState.currentInput);
         if (isNaN(inputNumber)) return;
 
-        switch (operator) {
+        let calculates = new Calc(calState.result, inputNumber)
+
+        switch (calState.operator) {
             case EButtonUsage.OPERATOR_ADD:
-                result = add(result, inputNumber)
+                calState.result = calculates.plus()
                 break
             case EButtonUsage.OPERATOR_SUBTRACT:
-                result = minus(result, inputNumber)
+                calState.result = calculates.minus()
                 break
             case EButtonUsage.OPERATOR_DIVIDE:
-                result = division(result, inputNumber)
+                calState.result = calculates.division()
                 break
             case EButtonUsage.OPERATOR_MULTIPLY:
-                result = multiplication(result, inputNumber)
+                calState.result = calculates.multiplication()
                 break
             default:
-                result = inputNumber
+                calState.result = inputNumber
                 break
         }
-        currentInput = ''
-        operator = ''
-        print(result)
+        calState.currentInput = ''
+        calState.operator = ''
     };
 
     return (state: EButtonUsage) => {
         switch (state) {
             case EButtonUsage.OPERATOR_AC:
-                result = 0
-                currentInput = ''
-                operator = ''
-                print(result)
+                calState.result = 0
+                calState.currentInput = ''
+                calState.operator = ''
+                print(calState.result)
                 break;
             case EButtonUsage.OPERATOR_C:
-                currentInput = ''
-                print(result)
+                calState.currentInput = ''
+                print(calState.result)
                 break;
             case EButtonUsage.OPERATOR_EQUAL:
                 calculate()
+                print(calState.result)
                 break;
             case EButtonUsage.OPERATOR_ADD:
             case EButtonUsage.OPERATOR_SUBTRACT:
             case EButtonUsage.OPERATOR_DIVIDE:
             case EButtonUsage.OPERATOR_MULTIPLY:
-                if (currentInput !== '') calculate()
-                operator = state
+                if (calState.currentInput !== '') {
+                    calculate()
+                    print(calState.result)
+                }
+                calState.operator = state
                 break;
             default:
                 console.log(state)
-                console.log(operator)
-                if (state === EButtonUsage.OPERATOR_DECIMAL && currentInput.includes('.')) return
-                currentInput += state
-                print(currentInput)
+                console.log(calState.operator)
+                if (state === EButtonUsage.OPERATOR_DECIMAL && calState.currentInput.includes('.')) return
+                calState.currentInput += state
+                print(calState.currentInput)
                 break;
         }
     };
